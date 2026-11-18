@@ -1,8 +1,5 @@
 import { Badge, Table, Text } from "@mantine/core";
-import type { FeedbackRecord } from "../../src/contract";
-
-type Severity = FeedbackRecord["severity"];
-type Sentiment = FeedbackRecord["sentiment"];
+import type { FeedbackRecord, Sentiment, Severity } from "../types";
 
 const NO_WRAP = { whiteSpace: "nowrap" } as const;
 

@@ -1,5 +1,4 @@
-import type { FeedbackRecord } from "../../src/contract";
-
+/** A failed API call: carries the error code and message from the API's `{ error: { code, message } }` body. */
 export class ApiError extends Error {
   constructor(
     message: string,
@@ -10,7 +9,7 @@ export class ApiError extends Error {
   }
 }
 
-async function request<T>(url: string, init?: RequestInit): Promise<T> {
+export async function request<T>(url: string, init?: RequestInit): Promise<T> {
   const response = await fetch(url, init);
   const body: unknown = await response.json().catch(() => undefined);
   if (!response.ok) {
@@ -18,16 +17,4 @@ async function request<T>(url: string, init?: RequestInit): Promise<T> {
     throw new ApiError(error?.message ?? "Unexpected error", error?.code ?? "unknown", response.status);
   }
   return body as T;
-}
-
-export function listFeedback(): Promise<FeedbackRecord[]> {
-  return request<FeedbackRecord[]>("/feedback");
-}
-
-export function submitFeedback(text: string): Promise<FeedbackRecord> {
-  return request<FeedbackRecord>("/feedback", {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({ text }),
-  });
 }

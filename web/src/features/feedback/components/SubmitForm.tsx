@@ -1,7 +1,8 @@
 import { Alert, Button, Stack, Text, Textarea } from "@mantine/core";
 import { useState } from "react";
-import { MAX_TEXT_LENGTH } from "../../src/limits";
-import { ApiError, submitFeedback } from "./api";
+import { MAX_TEXT_LENGTH } from "@limits";
+import { ApiError } from "../../../shared/http";
+import { submitFeedback } from "../api";
 
 function messageFor(error: unknown): string {
   if (error instanceof ApiError && error.status === 400) return error.message;

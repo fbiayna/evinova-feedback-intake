@@ -1,10 +1,10 @@
 import { Alert, Container, Loader, Paper, Stack, Title } from "@mantine/core";
 import { useCallback, useEffect, useState } from "react";
-import type { FeedbackRecord } from "../../src/contract";
-import { listFeedback } from "./api";
-import { CategoryCounts } from "./CategoryCounts";
-import { RecordsTable } from "./RecordsTable";
-import { SubmitForm } from "./SubmitForm";
+import { listFeedback } from "../features/feedback/api";
+import { CategoryCounts } from "../features/feedback/components/CategoryCounts";
+import { RecordsTable } from "../features/feedback/components/RecordsTable";
+import { SubmitForm } from "../features/feedback/components/SubmitForm";
+import type { FeedbackRecord } from "../features/feedback/types";
 
 export function App() {
   const [records, setRecords] = useState<FeedbackRecord[]>([]);

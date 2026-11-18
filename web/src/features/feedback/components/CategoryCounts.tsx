@@ -1,7 +1,5 @@
 import { Paper, SimpleGrid, Text } from "@mantine/core";
-import type { FeedbackRecord } from "../../src/contract";
-
-type Category = FeedbackRecord["category"];
+import type { Category, FeedbackRecord } from "../types";
 
 // Record<Category, ...> makes the compiler fail if the contract gains a category that is not listed here.
 const LABELS: Record<Category, string> = {
