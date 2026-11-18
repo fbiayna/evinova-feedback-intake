@@ -1,6 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { z } from "zod";
-import { ExtractionSchema } from "./contract";
+import { ExtractionSchema } from "../contract";
 import type { Extractor } from "./extractor";
 
 const TOOL_NAME = "record_feedback";

@@ -1,7 +1,7 @@
-import { AnthropicExtractor } from "./anthropic-extractor";
+import { AnthropicExtractor } from "./extraction/anthropic.extractor";
 import { createApp } from "./app";
-import type { Extractor } from "./extractor";
-import { MockExtractor } from "./mock-extractor";
+import type { Extractor } from "./extraction/extractor";
+import { MockExtractor } from "./extraction/mock.extractor";
 
 function buildExtractor(): Extractor {
   if (process.env.EXTRACTOR !== "anthropic") return new MockExtractor();

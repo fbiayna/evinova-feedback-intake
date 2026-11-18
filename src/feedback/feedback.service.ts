@@ -5,9 +5,9 @@ import {
   SubmitInputSchema,
   type Extraction,
   type FeedbackRecord,
-} from "./contract";
-import type { Extractor } from "./extractor";
-import type { FeedbackRepository } from "./repository";
+} from "../contract";
+import type { Extractor } from "../extraction/extractor";
+import type { FeedbackRepository } from "./feedback.repository";
 
 /** The model is called once, then once more if its first answer breaks the contract. */
 const MAX_ATTEMPTS = 2;
@@ -20,14 +20,14 @@ export class InvalidModelOutputError extends Error {
   readonly code = "invalid_model_output";
 }
 
-export interface IntakeDependencies {
+export interface FeedbackServiceDependencies {
   extractor: Extractor;
   repository: FeedbackRepository;
   now: () => Date;
   newId: () => string;
 }
 
-export function createIntakeService(deps: IntakeDependencies) {
+export function createFeedbackService(deps: FeedbackServiceDependencies) {
   async function extractValid(text: string): Promise<Extraction> {
     let validationError: string | undefined;
     for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
@@ -60,3 +60,5 @@ export function createIntakeService(deps: IntakeDependencies) {
     get: (id: string) => deps.repository.get(id),
   };
 }
+
+export type FeedbackService = ReturnType<typeof createFeedbackService>;

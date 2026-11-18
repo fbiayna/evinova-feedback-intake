@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { createApp } from "../src/app";
 import { FeedbackRecordSchema } from "../src/contract";
-import type { Extractor } from "../src/extractor";
+import type { Extractor } from "../src/extraction/extractor";
 
 const FIXED_NOW = new Date("2026-06-29T10:00:00Z");
 const FIXED_ID = "fb_00000000-0000-4000-8000-000000000001";

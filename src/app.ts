@@ -1,13 +1,10 @@
 import { randomUUID } from "node:crypto";
 import Fastify from "fastify";
-import { FeedbackRecordSchema } from "./contract";
-import type { Extractor } from "./extractor";
-import {
-  createIntakeService,
-  InvalidInputError,
-  InvalidModelOutputError,
-} from "./intake-service";
-import { InMemoryRepository, type FeedbackRepository } from "./repository";
+import type { Extractor } from "./extraction/extractor";
+import { registerFeedbackRoutes } from "./feedback/feedback.controller";
+import type { FeedbackRepository } from "./feedback/feedback.repository";
+import { createFeedbackService } from "./feedback/feedback.service";
+import { InMemoryFeedbackRepository } from "./feedback/in-memory-feedback.repository";
 
 export interface AppOptions {
   extractor: Extractor;
@@ -17,42 +14,16 @@ export interface AppOptions {
   logger?: boolean;
 }
 
-const errorBody = (code: string, message: string) => ({ error: { code, message } });
-
+/** Wires the pieces together: this is where the interfaces get their implementations. */
 export function createApp(options: AppOptions) {
   const app = Fastify({ logger: options.logger ?? false });
-  const service = createIntakeService({
+  const service = createFeedbackService({
     extractor: options.extractor,
-    repository: options.repository ?? new InMemoryRepository(),
+    repository: options.repository ?? new InMemoryFeedbackRepository(),
     now: options.now ?? (() => new Date()),
     newId: options.newId ?? (() => `fb_${randomUUID()}`),
   });
 
-  app.post("/feedback", async (request, reply) => {
-    try {
-      const record = await service.submit(request.body);
-      return reply.code(201).send(FeedbackRecordSchema.parse(record));
-    } catch (error) {
-      if (error instanceof InvalidInputError) {
-        return reply.code(400).send(errorBody(error.code, error.message));
-      }
-      if (error instanceof InvalidModelOutputError) {
-        return reply.code(502).send(errorBody(error.code, error.message));
-      }
-      throw error;
-    }
-  });
-
-  app.get("/feedback", async () => {
-    const records = await service.list();
-    return records.map((record) => FeedbackRecordSchema.parse(record));
-  });
-
-  app.get<{ Params: { id: string } }>("/feedback/:id", async (request, reply) => {
-    const record = await service.get(request.params.id);
-    if (!record) return reply.code(404).send(errorBody("not_found", "Feedback not found."));
-    return FeedbackRecordSchema.parse(record);
-  });
-
+  registerFeedbackRoutes(app, service);
   return app;
 }
