@@ -1,11 +1,8 @@
 import { Badge, Table, Text } from "@mantine/core";
-import type { FeedbackRecord, Sentiment, Severity } from "../types";
+import { formatCategory, SENTIMENT_COLOR, SEVERITY_COLOR } from "../presentation";
+import type { FeedbackRecord } from "../types";
 
 const NO_WRAP = { whiteSpace: "nowrap" } as const;
-
-// Record<...> makes the compiler fail if the contract gains a value that is not handled here.
-const SEVERITY_COLOR: Record<Severity, string> = { low: "gray", medium: "yellow", high: "red" };
-const SENTIMENT_COLOR: Record<Sentiment, string> = { positive: "green", neutral: "gray", negative: "red" };
 
 export function RecordsTable({ records }: { records: FeedbackRecord[] }) {
   if (records.length === 0) {
@@ -31,7 +28,7 @@ export function RecordsTable({ records }: { records: FeedbackRecord[] }) {
             <Table.Tr key={record.id}>
               <Table.Td style={NO_WRAP}>{new Date(record.submittedAt).toLocaleString()}</Table.Td>
               <Table.Td style={NO_WRAP}>
-                <Badge variant="light" w="max-content">{record.category.replace("_", " ")}</Badge>
+                <Badge variant="light" w="max-content">{formatCategory(record.category)}</Badge>
               </Table.Td>
               <Table.Td style={NO_WRAP}>
                 <Badge variant="light" w="max-content" color={SENTIMENT_COLOR[record.sentiment]}>

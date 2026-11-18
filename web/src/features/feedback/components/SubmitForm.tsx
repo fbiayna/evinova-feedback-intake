@@ -1,35 +1,15 @@
 import { Alert, Button, Stack, Text, Textarea } from "@mantine/core";
-import { useState } from "react";
 import { MAX_TEXT_LENGTH } from "@limits";
-import { ApiError } from "../../../shared/http";
-import { submitFeedback } from "../api";
-
-function messageFor(error: unknown): string {
-  if (error instanceof ApiError && error.status === 400) return error.message;
-  if (error instanceof ApiError && error.status === 502) {
-    return "The AI could not process this feedback. Please try again.";
-  }
-  return "Something went wrong. Please try again.";
-}
+import { useState } from "react";
+import { useSubmitFeedback } from "../useSubmitFeedback";
 
 export function SubmitForm({ onSubmitted }: { onSubmitted: () => void }) {
   const [text, setText] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string>();
+  const { submit, submitting, error } = useSubmitFeedback(onSubmitted);
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
-    setSubmitting(true);
-    setError(undefined);
-    try {
-      await submitFeedback(text);
-      setText("");
-      onSubmitted();
-    } catch (caught) {
-      setError(messageFor(caught));
-    } finally {
-      setSubmitting(false);
-    }
+    if (await submit(text)) setText("");
   }
 
   return (

@@ -1,27 +1,20 @@
 import { Paper, SimpleGrid, Text } from "@mantine/core";
-import type { Category, FeedbackRecord } from "../types";
+import { CATEGORY_LABEL } from "../presentation";
+import { CATEGORIES, countByCategory } from "../stats";
+import type { FeedbackRecord } from "../types";
 
-// Record<Category, ...> makes the compiler fail if the contract gains a category that is not listed here.
-const LABELS: Record<Category, string> = {
-  bug: "Bugs",
-  feature_request: "Feature requests",
-  praise: "Praise",
-  other: "Other",
-};
-
-/** The aggregate view: how many records per category. Computed here from the list. */
+/** The aggregate view: how many records per category. */
 export function CategoryCounts({ records }: { records: FeedbackRecord[] }) {
-  const counts: Record<Category, number> = { bug: 0, feature_request: 0, praise: 0, other: 0 };
-  for (const record of records) counts[record.category] += 1;
+  const counts = countByCategory(records);
 
   return (
     <SimpleGrid cols={{ base: 2, sm: 4 }}>
-      {(Object.keys(LABELS) as Category[]).map((category) => (
+      {CATEGORIES.map((category) => (
         <Paper key={category} withBorder p="md">
           <Text size="sm" c="dimmed">
-            {LABELS[category]}
+            {CATEGORY_LABEL[category]}
           </Text>
-          <Text size="xl" fw={700} aria-label={`${LABELS[category]} count`}>
+          <Text size="xl" fw={700} aria-label={`${CATEGORY_LABEL[category]} count`}>
             {counts[category]}
           </Text>
         </Paper>

@@ -1,42 +1,20 @@
 import { Alert, Container, Loader, Paper, Stack, Title } from "@mantine/core";
-import { useCallback, useEffect, useState } from "react";
-import { listFeedback } from "../features/feedback/api";
-import { CategoryCounts } from "../features/feedback/components/CategoryCounts";
-import { RecordsTable } from "../features/feedback/components/RecordsTable";
-import { SubmitForm } from "../features/feedback/components/SubmitForm";
-import type { FeedbackRecord } from "../features/feedback/types";
+import { CategoryCounts, RecordsTable, SubmitForm, useFeedbackList } from "../features/feedback";
 
 export function App() {
-  const [records, setRecords] = useState<FeedbackRecord[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [loadError, setLoadError] = useState<string>();
-
-  const load = useCallback(async () => {
-    try {
-      setRecords(await listFeedback());
-      setLoadError(undefined);
-    } catch {
-      setLoadError("Could not load the feedback list.");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    void load();
-  }, [load]);
+  const { records, loading, error, reload } = useFeedbackList();
 
   return (
     <Container size="lg" py="xl">
       <Stack gap="lg">
         <Title order={2}>Feedback Intake</Title>
         <Paper withBorder p="md">
-          <SubmitForm onSubmitted={load} />
+          <SubmitForm onSubmitted={reload} />
         </Paper>
         <CategoryCounts records={records} />
-        {loadError && (
+        {error && (
           <Alert color="red" role="alert">
-            {loadError}
+            {error}
           </Alert>
         )}
         <Paper withBorder p="md">
