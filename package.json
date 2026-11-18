@@ -9,9 +9,11 @@
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p web",
     "dev:api": "tsx watch src/server.ts",
-    "start:api": "tsx src/server.ts"
+    "start:api": "tsx src/server.ts",
+    "dev:web": "vite web",
+    "build:web": "vite build web"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.10.0",
