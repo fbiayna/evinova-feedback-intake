@@ -42,7 +42,7 @@ flowchart TB
 
 ### AWS target
 
-Described in `infra/` with AWS CDK. Not deployed.
+Described in `infra/` with AWS CDK. Not deployed. Check it with `yarn synth`.
 
 ```mermaid
 flowchart LR
@@ -56,7 +56,7 @@ flowchart LR
 ```
 
 Locally the repository is in memory. The repository interface is where DynamoDB
-would plug in.
+would plug in. The Lambda adapter for the API is not built (see `HARDENING.md`).
 
 ## What is mocked
 
