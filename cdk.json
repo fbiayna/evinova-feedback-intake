@@ -1,0 +1,4 @@
+{
+  "app": "tsx infra/bin/app.ts",
+  "output": "infra/cdk.out"
+}
