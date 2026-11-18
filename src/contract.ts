@@ -1,11 +1,10 @@
 import { z } from "zod";
+import { MAX_TEXT_LENGTH } from "./limits";
 
 export const Category = z.enum(["bug", "feature_request", "praise", "other"]);
 export const Sentiment = z.enum(["positive", "neutral", "negative"]);
 export const Severity = z.enum(["low", "medium", "high"]);
 export const Status = z.enum(["new", "triaged", "resolved"]);
-
-export const MAX_TEXT_LENGTH = 2000;
 
 /** What a client may send. */
 export const SubmitInputSchema = z.object({
