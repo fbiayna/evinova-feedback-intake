@@ -15,7 +15,7 @@ function buildExtractor(): Extractor {
   if (!apiKey) throw new Error("EXTRACTOR=anthropic needs ANTHROPIC_API_KEY (set it in .env).");
   return new AnthropicExtractor(
     apiKey,
-    process.env.ANTHROPIC_MODEL ?? "claude-haiku-5-5",
+    process.env.ANTHROPIC_MODEL || "claude-haiku-5-5",
     process.env.PRODUCT_CONTEXT || undefined,
   );
 }

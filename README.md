@@ -92,4 +92,4 @@ and `ANTHROPIC_API_KEY`. `PRODUCT_CONTEXT` is optional.
 | `GET /feedback/:id` | the record, or 404 |
 
 Errors look like `{ "error": { "code", "message" } }`: 400 `invalid_input`,
-404 `not_found`, 502 `invalid_model_output` or `extraction_failed`, 500 `internal_error`.
+404 `not_found` (also for unknown routes), 502 `invalid_model_output` or `extraction_failed`, 500 `internal_error`.

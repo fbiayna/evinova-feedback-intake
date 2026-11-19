@@ -11,7 +11,7 @@ export function App() {
         <Paper withBorder p="md">
           <SubmitForm onSubmitted={reload} />
         </Paper>
-        <CategoryCounts records={records} />
+        {!error && <CategoryCounts records={records} />}
         {error && (
           <Alert color="red" role="alert">
             {error}

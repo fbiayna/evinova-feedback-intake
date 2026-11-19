@@ -98,7 +98,8 @@ describe("Feedback intake", () => {
   });
 });
 
-describe("Failures", () => {
+// Regression tests for the fixes made in the harden phase. They are not PLAN scenarios.
+describe("Hardening", () => {
   it("The AI provider fails", async () => {
     const extractor: Extractor = {
       async extract() {
@@ -113,6 +114,21 @@ describe("Failures", () => {
     expect(response.json().error.code).toBe("extraction_failed");
     expect(response.body).not.toContain("connection reset");
     expect((await app.inject({ method: "GET", url: "/feedback" })).json()).toEqual([]);
+  });
+
+  it("A second attempt that satisfies the contract is stored", async () => {
+    const { extractor, validationErrors } = scriptedExtractor([
+      { ...validAnswer, severity: "critical" },
+      validAnswer,
+    ]);
+    const app = appWith(extractor);
+
+    const response = await app.inject({ method: "POST", url: "/feedback", payload: { text: "It crashes." } });
+
+    expect(response.statusCode).toBe(201);
+    expect(response.json()).toMatchObject(validAnswer);
+    expect(validationErrors).toHaveLength(2);
+    expect((await app.inject({ method: "GET", url: "/feedback" })).json()).toHaveLength(1);
   });
 
   it("An unexpected error does not leak details", async () => {

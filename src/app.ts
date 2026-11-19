@@ -37,6 +37,10 @@ export function createApp(options: AppOptions) {
     return reply.code(500).send({ error: { code: "internal_error", message: "Unexpected error." } });
   });
 
+  app.setNotFoundHandler((_request, reply) =>
+    reply.code(404).send({ error: { code: "not_found", message: "Not found." } }),
+  );
+
   registerFeedbackRoutes(app, service);
   return app;
 }
