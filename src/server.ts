@@ -8,7 +8,11 @@ function buildExtractor(): Extractor {
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) throw new Error("EXTRACTOR=anthropic needs ANTHROPIC_API_KEY (set it in .env).");
-  return new AnthropicExtractor(apiKey, process.env.ANTHROPIC_MODEL ?? "claude-haiku-5-5");
+  return new AnthropicExtractor(
+    apiKey,
+    process.env.ANTHROPIC_MODEL ?? "claude-haiku-5-5",
+    process.env.PRODUCT_CONTEXT || undefined,
+  );
 }
 
 try {
