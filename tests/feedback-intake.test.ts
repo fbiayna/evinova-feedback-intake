@@ -97,3 +97,53 @@ describe("Feedback intake", () => {
     expect(validationErrors).toHaveLength(0);
   });
 });
+
+describe("Failures", () => {
+  it("The AI provider fails", async () => {
+    const extractor: Extractor = {
+      async extract() {
+        throw new Error("connection reset");
+      },
+    };
+    const app = appWith(extractor);
+
+    const response = await app.inject({ method: "POST", url: "/feedback", payload: { text: "It crashes." } });
+
+    expect(response.statusCode).toBe(502);
+    expect(response.json().error.code).toBe("extraction_failed");
+    expect(response.body).not.toContain("connection reset");
+    expect((await app.inject({ method: "GET", url: "/feedback" })).json()).toEqual([]);
+  });
+
+  it("An unexpected error does not leak details", async () => {
+    const { extractor } = scriptedExtractor([validAnswer]);
+    const repository = {
+      save: async () => {},
+      get: async () => undefined,
+      list: async () => {
+        throw new Error("database password is hunter2");
+      },
+    };
+    const app = createApp({ extractor, repository });
+
+    const response = await app.inject({ method: "GET", url: "/feedback" });
+
+    expect(response.statusCode).toBe(500);
+    expect(response.json().error.code).toBe("internal_error");
+    expect(response.body).not.toContain("hunter2");
+  });
+
+  it("An oversized request is rejected", async () => {
+    const { extractor, validationErrors } = scriptedExtractor([validAnswer]);
+    const app = appWith(extractor);
+
+    const response = await app.inject({
+      method: "POST",
+      url: "/feedback",
+      payload: { text: "x".repeat(20_000) },
+    });
+
+    expect(response.statusCode).toBe(413);
+    expect(validationErrors).toHaveLength(0);
+  });
+});

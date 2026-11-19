@@ -1,6 +1,7 @@
 import type { FastifyInstance } from "fastify";
 import { FeedbackRecordSchema } from "../contract";
 import {
+  ExtractionFailedError,
   InvalidInputError,
   InvalidModelOutputError,
   type FeedbackService,
@@ -19,6 +20,10 @@ export function registerFeedbackRoutes(app: FastifyInstance, service: FeedbackSe
         return reply.code(400).send(errorBody(error.code, error.message));
       }
       if (error instanceof InvalidModelOutputError) {
+        return reply.code(502).send(errorBody(error.code, error.message));
+      }
+      if (error instanceof ExtractionFailedError) {
+        request.log.error({ err: error.cause }, "The extractor failed");
         return reply.code(502).send(errorBody(error.code, error.message));
       }
       throw error;

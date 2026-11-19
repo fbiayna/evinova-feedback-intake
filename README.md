@@ -4,8 +4,8 @@ A small service that turns free-text feedback into a structured record. An AI mo
 extracts category, sentiment, severity, summary and suggested action. The service
 validates the result, stores it, and a dashboard shows the records.
 
-> Work in progress. Scope and decisions are in [PLAN.md](PLAN.md). The run steps
-> are added with the implementation.
+Scope: [PLAN.md](PLAN.md). Limits and next steps: [HARDENING.md](HARDENING.md).
+Decisions, use of AI and time spent: [DECISIONS.md](DECISIONS.md).
 
 ## Architecture
 
@@ -68,3 +68,28 @@ which is not committed.
 ## Requirements
 
 Node 22.12 or newer and Yarn.
+
+## Run
+
+```
+yarn install
+yarn start:api   # API on http://localhost:3000 (mock model)
+yarn dev:web     # dashboard on http://localhost:5173
+yarn test
+yarn typecheck
+yarn synth       # checks the AWS CDK stack, nothing is deployed
+```
+
+To use the real model, copy `.env.example` to `.env` and set `EXTRACTOR=anthropic`
+and `ANTHROPIC_API_KEY`. `PRODUCT_CONTEXT` is optional.
+
+## API
+
+| Call | Result |
+|---|---|
+| `POST /feedback` with `{ "text": "..." }` | 201 with the record |
+| `GET /feedback` | list, newest first |
+| `GET /feedback/:id` | the record, or 404 |
+
+Errors look like `{ "error": { "code", "message" } }`: 400 `invalid_input`,
+404 `not_found`, 502 `invalid_model_output` or `extraction_failed`, 500 `internal_error`.

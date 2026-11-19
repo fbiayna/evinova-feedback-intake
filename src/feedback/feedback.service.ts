@@ -7,6 +7,7 @@ import {
   type FeedbackRecord,
 } from "../contract";
 import type { Extractor } from "../extraction/extractor";
+import { MAX_TEXT_LENGTH } from "../limits";
 import type { FeedbackRepository } from "./feedback.repository";
 
 /** The model is called once, then once more if its first answer breaks the contract. */
@@ -20,6 +21,11 @@ export class InvalidModelOutputError extends Error {
   readonly code = "invalid_model_output";
 }
 
+/** The AI provider failed (network, timeout, rate limit). The original error is kept as `cause`. */
+export class ExtractionFailedError extends Error {
+  readonly code = "extraction_failed";
+}
+
 export interface FeedbackServiceDependencies {
   extractor: Extractor;
   repository: FeedbackRepository;
@@ -31,7 +37,12 @@ export function createFeedbackService(deps: FeedbackServiceDependencies) {
   async function extractValid(text: string): Promise<Extraction> {
     let validationError: string | undefined;
     for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
-      const answer = await deps.extractor.extract(text, validationError);
+      let answer: unknown;
+      try {
+        answer = await deps.extractor.extract(text, validationError);
+      } catch (error) {
+        throw new ExtractionFailedError("The AI service is not available. Please try again.", { cause: error });
+      }
       const parsed = ExtractionSchema.safeParse(answer);
       if (parsed.success) return parsed.data;
       validationError = z.prettifyError(parsed.error);
@@ -43,7 +54,9 @@ export function createFeedbackService(deps: FeedbackServiceDependencies) {
     /** Validates the input, extracts, builds the record (the code owns id, time and status) and stores it. */
     async submit(body: unknown): Promise<FeedbackRecord> {
       const input = SubmitInputSchema.safeParse(body);
-      if (!input.success) throw new InvalidInputError(z.prettifyError(input.error));
+      if (!input.success) {
+        throw new InvalidInputError(`Send a "text" of 1 to ${MAX_TEXT_LENGTH} characters.`);
+      }
 
       const extraction = await extractValid(input.data.text);
       const record = FeedbackRecordSchema.parse({
