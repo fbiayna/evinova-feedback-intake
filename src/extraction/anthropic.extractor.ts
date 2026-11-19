@@ -20,8 +20,23 @@ function buildSystemPrompt(productContext?: string): string {
   return productContext ? `Product context: ${productContext}\n\n${BASE_PROMPT}` : BASE_PROMPT;
 }
 
-/** Fail fast: a slow model call should not hold a request open. */
-const TIMEOUT_MS = 20_000;
+/**
+ * Fail fast: one attempt waits at most 10 s and the SDK does not retry on its own.
+ * The service makes at most 2 attempts, so a request takes 20 s at worst.
+ */
+const TIMEOUT_MS = 10_000;
+
+/** The feedback goes inside <feedback> tags, so its own < and > are escaped: it cannot close the tag. */
+function escapeForPrompt(text: string): string {
+  return text.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+}
+
+export function buildUserMessage(text: string, validationError?: string): string {
+  const retryNote = validationError
+    ? `\n\nYour previous answer was rejected:\n${validationError}\nAnswer again and fix it.`
+    : "";
+  return `<feedback>\n${escapeForPrompt(text)}\n</feedback>${retryNote}`;
+}
 
 // The tool input schema comes from the same Zod schema the code validates against.
 const { $schema: _ignored, ...inputSchema } = z.toJSONSchema(ExtractionSchema);
@@ -35,15 +50,11 @@ export class AnthropicExtractor implements Extractor {
     private readonly model: string,
     productContext?: string,
   ) {
-    this.client = new Anthropic({ apiKey, timeout: TIMEOUT_MS, maxRetries: 1 });
+    this.client = new Anthropic({ apiKey, timeout: TIMEOUT_MS, maxRetries: 0 });
     this.systemPrompt = buildSystemPrompt(productContext);
   }
 
   async extract(text: string, validationError?: string): Promise<unknown> {
-    const retryNote = validationError
-      ? `\n\nYour previous answer was rejected:\n${validationError}\nAnswer again and fix it.`
-      : "";
-
     const message = await this.client.messages.create({
       model: this.model,
       max_tokens: 512,
@@ -56,7 +67,7 @@ export class AnthropicExtractor implements Extractor {
         },
       ],
       tool_choice: { type: "tool", name: TOOL_NAME },
-      messages: [{ role: "user", content: `<feedback>\n${text}\n</feedback>${retryNote}` }],
+      messages: [{ role: "user", content: buildUserMessage(text, validationError) }],
     });
 
     const toolUse = message.content.find((block) => block.type === "tool_use");

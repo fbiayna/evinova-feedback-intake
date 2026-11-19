@@ -1,4 +1,4 @@
-import { CfnOutput, Fn, RemovalPolicy, Stack, type StackProps } from "aws-cdk-lib";
+import { CfnOutput, Duration, Fn, RemovalPolicy, Stack, type StackProps } from "aws-cdk-lib";
 import { HttpApi, HttpMethod } from "aws-cdk-lib/aws-apigatewayv2";
 import { HttpLambdaIntegration } from "aws-cdk-lib/aws-apigatewayv2-integrations";
 import * as cloudfront from "aws-cdk-lib/aws-cloudfront";
@@ -28,7 +28,8 @@ export class FeedbackStack extends Stack {
       removalPolicy: RemovalPolicy.RETAIN,
     });
 
-    // Created empty: the key is set by hand in the console, so it never appears in code or in the template.
+    // Created with a random placeholder value: the real key is set by hand in the console,
+    // so it never appears in code or in the template.
     const anthropicKey = new Secret(this, "AnthropicApiKey");
 
     // Placeholder code: the Lambda adapter that wraps the Fastify app is not built (see HARDENING.md).
@@ -36,6 +37,9 @@ export class FeedbackStack extends Stack {
       runtime: Runtime.NODEJS_22_X,
       handler: "lambda.handler",
       code: Code.fromAsset(SRC_DIR),
+      // Longer than the 20 s the model calls can take, shorter than the 30 s the HTTP API allows.
+      timeout: Duration.seconds(29),
+      memorySize: 512,
       environment: {
         EXTRACTOR: "anthropic",
         ANTHROPIC_MODEL: "claude-haiku-5-5",
