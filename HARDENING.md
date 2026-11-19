@@ -10,6 +10,16 @@
 - Feedback text is not logged. No secrets in the repository.
 - The mock extractor is refused when `NODE_ENV=production`.
 
+## Security checks (OWASP Top 10 for LLM applications)
+
+| Risk | How it is covered |
+|---|---|
+| Prompt injection | The feedback is marked as data in the prompt. The model has no tools that act. |
+| Improper output handling | The answer is validated with Zod. React escapes the text, so no HTML is injected. |
+| Unbounded consumption | Text capped at 2000 characters, body at 16 KiB, 20 s timeout, one retry. |
+| Sensitive information | Feedback text is not logged. The key is in `.env` or Secrets Manager. |
+| Excessive agency | The model only returns data. The code decides what to store. |
+
 ## Next, in this order
 
 1. Lambda adapter for Fastify and a DynamoDB repository (the CDK stack describes them).
@@ -18,7 +28,7 @@
 4. A small set of example feedbacks to check prompt and model changes (evals).
 5. Logs with token usage and cost, and alarms on 5xx and on model failures.
 6. Personal data: redact before storing or sending, and set a retention period.
-7. Pagination, frontend tests, CI.
+7. Pagination, frontend tests, browser end-to-end tests, CI (with `yarn audit`), security headers.
 8. Split the public form from an internal, authenticated dashboard.
 
 ## Promotion
