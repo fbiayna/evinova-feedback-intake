@@ -4,7 +4,12 @@ import type { Extractor } from "./extraction/extractor";
 import { MockExtractor } from "./extraction/mock.extractor";
 
 function buildExtractor(): Extractor {
-  if (process.env.EXTRACTOR !== "anthropic") return new MockExtractor();
+  if (process.env.EXTRACTOR !== "anthropic") {
+    if (process.env.NODE_ENV === "production") {
+      throw new Error("The mock extractor is not allowed in production. Set EXTRACTOR=anthropic.");
+    }
+    return new MockExtractor();
+  }
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) throw new Error("EXTRACTOR=anthropic needs ANTHROPIC_API_KEY (set it in .env).");
@@ -21,7 +26,9 @@ try {
   // No .env file: fine, the defaults use the mock.
 }
 
-const app = createApp({ extractor: buildExtractor(), logger: true });
+const extractor = buildExtractor();
+const app = createApp({ extractor, logger: true });
+app.log.info({ extractor: extractor.constructor.name, model: process.env.ANTHROPIC_MODEL }, "Extractor in use");
 const port = Number(process.env.PORT ?? 3000);
 
 app.listen({ port }).catch((error) => {
