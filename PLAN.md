@@ -5,7 +5,8 @@ structured record, the service validates and stores it, and an API and a dashboa
 expose it.
 
 This is the **Plan** phase. **Execute** builds to the criteria below and **Harden**
-is in `HARDENING.md`. Architecture diagrams are in the [README](README.md).
+is in `HARDENING.md`. Diagrams are in the [README](README.md) and the reasons for
+the choices are in [DECISIONS.md](DECISIONS.md).
 
 ## Scope
 
@@ -23,19 +24,6 @@ is in `HARDENING.md`. Architecture diagrams are in the [README](README.md).
   polish, CI, containers, observability.
 - Status changes, pagination, filters, rate limiting.
 - A Lambda adapter for the API (noted in `HARDENING.md`).
-
-## Decisions
-
-| Area | Decision |
-|---|---|
-| Repository | One repo, one `package.json`, Yarn. `src/` API, `web/` dashboard, `infra/` CDK, `tests/` |
-| API | Fastify. `POST /feedback` (201), `GET /feedback` (newest first), `GET /feedback/:id` (404 if missing). Errors: `{ "error": { "code", "message" } }`, 400 invalid input, 502 invalid model output |
-| Contract | Zod on the request, the model output and the response. `text`: trimmed, 1 to 2000 characters. The dashboard imports the type from `src/contract` |
-| IDs and time | `fb_` plus a UUID. Injected clock for deterministic tests |
-| AI | Anthropic SDK, tool use with a JSON schema from the Zod contract. `ANTHROPIC_MODEL` sets the model. `EXTRACTOR=mock` by default |
-| Dashboard | React, Vite, Mantine. Counts computed in the browser. Dev proxy to the API, so no CORS |
-| IaC | CDK: S3 and CloudFront (routes `/feedback*` to the API), HTTP API and Lambda, DynamoDB, key in Secrets Manager. Checked with `cdk synth` |
-| Tests | Vitest. Test names are the scenario titles |
 
 ## Invalid model output
 
@@ -79,25 +67,8 @@ Feature: Feedback intake
     And the model is not called
 ```
 
-## Execution steps
+## Test-first
 
-Each step is a branch and a pull request, merged with a merge commit.
-
-| # | Branch | Done when |
-|---|---|---|
-| 1 | `docs/plan` | Plan and README are reviewed |
-| 2 | `chore/scaffold` | Tests and typecheck run |
-| 3 | `feat/intake-core` | The failing tests come first (`test:`), then the implementation in small commits |
-| 4 | `feat/dashboard` | Form, table and counts work against the local API |
-| 5 | `feat/infra` | `cdk synth` passes |
-| 6 | `docs/harden` | `HARDENING.md` (with promotion and rollback), `DECISIONS.md` and the run steps in the README. Hardening fixes are separate commits |
-
-Ways of working: conventional commits, nothing pushed to `main` directly, no
-secrets in the repo, and the time spent and use of AI recorded in `DECISIONS.md`.
-
-## References
-
-- [Kiro: spec-driven development](https://kiro.dev/docs/specs/)
-- [BDD 101: Writing Good Gherkin](https://automationpanda.com/2017/01/30/bdd-101-writing-good-gherkin/)
-- [OWASP Top 10 for LLMs 2025 (HackerOne summary)](https://www.hackerone.com/ai/owasp-top-10-llms-2025)
-- [Architecture Decision Records](https://endjin.com/blog/architecture-decision-records)
+The three scenarios were written as failing tests first (commit `ff4a943`), before
+any implementation. The work is staged plan, execute, harden: one branch and pull
+request per step, so the history shows the shape.
