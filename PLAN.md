@@ -87,10 +87,10 @@ Each step is a branch and a pull request, merged with a merge commit.
 |---|---|---|
 | 1 | `docs/plan` | Plan and README are reviewed |
 | 2 | `chore/scaffold` | Tests and typecheck run |
-| 3 | `feat/intake-core` | Two commits: the failing tests (`test:`), then the implementation that makes them pass |
+| 3 | `feat/intake-core` | The failing tests come first (`test:`), then the implementation in small commits |
 | 4 | `feat/dashboard` | Form, table and counts work against the local API |
 | 5 | `feat/infra` | `cdk synth` passes |
-| 6 | `docs/harden` | `HARDENING.md` (with promotion and rollback), `DECISIONS.md` and the run steps in the README. Hardening fixes (model call timeout, central error handler) are their own commits |
+| 6 | `docs/harden` | `HARDENING.md` (with promotion and rollback), `DECISIONS.md` and the run steps in the README. Hardening fixes are separate commits |
 
 Ways of working: conventional commits, nothing pushed to `main` directly, no
 secrets in the repo, and the time spent and use of AI recorded in `DECISIONS.md`.

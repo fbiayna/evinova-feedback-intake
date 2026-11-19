@@ -17,7 +17,7 @@ direction, reviewed each step and tested every branch myself before merging.
 
 The API is small, but the model and the store are the parts most likely to
 change. They sit behind two interfaces (`Extractor`, `FeedbackRepository`), so
-tests use stubs and DynamoDB can replace memory without touching the service.
+tests use stubs and DynamoDB can replace memory behind the same interface (listing newest first needs an index, see HARDENING.md).
 No DI container: `app.ts` wires everything by hand.
 
 ## Other choices
@@ -27,6 +27,7 @@ No DI container: `app.ts` wires everything by hand.
 - One `package.json` with folders, not workspaces. Workspaces are the next step if
   the API and the web app need separate dependencies.
 - Counts are computed in the browser. With paging they would come from the API.
+- The table shows the summary, not the original text. The text is stored and returned by the API.
 - Tests call the API through Fastify `inject`: routes, validation and error codes
   run for real and only the model is replaced by a stub. No browser end-to-end
   tests: the brief asks for non-exhaustive tests, so the dashboard was checked by hand.
