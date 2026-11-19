@@ -147,3 +147,46 @@ describe("Failures", () => {
     expect(validationErrors).toHaveLength(0);
   });
 });
+
+describe("Behaviour", () => {
+  it("A second attempt that satisfies the contract is stored", async () => {
+    const { extractor, validationErrors } = scriptedExtractor([
+      { ...validAnswer, severity: "critical" },
+      validAnswer,
+    ]);
+    const app = appWith(extractor);
+
+    const response = await app.inject({ method: "POST", url: "/feedback", payload: { text: "It crashes." } });
+
+    expect(response.statusCode).toBe(201);
+    expect(response.json()).toMatchObject(validAnswer);
+    expect(validationErrors).toHaveLength(2);
+    expect((await app.inject({ method: "GET", url: "/feedback" })).json()).toHaveLength(1);
+  });
+
+  it("An unknown id or route returns not found", async () => {
+    const app = appWith(scriptedExtractor([validAnswer]).extractor);
+
+    for (const url of ["/feedback/fb_missing", "/unknown"]) {
+      const response = await app.inject({ method: "GET", url });
+      expect(response.statusCode).toBe(404);
+      expect(response.json().error.code).toBe("not_found");
+    }
+  });
+
+  it("The list is newest first", async () => {
+    let count = 0;
+    const app = createApp({
+      extractor: scriptedExtractor([validAnswer]).extractor,
+      newId: () => `fb_00000000-0000-4000-8000-${String(++count).padStart(12, "0")}`,
+      now: () => new Date(FIXED_NOW.getTime() + count * 1000),
+    });
+
+    for (const text of ["First", "Second"]) {
+      await app.inject({ method: "POST", url: "/feedback", payload: { text } });
+    }
+
+    const texts = (await app.inject({ method: "GET", url: "/feedback" })).json().map((r: { text: string }) => r.text);
+    expect(texts).toEqual(["Second", "First"]);
+  });
+});
