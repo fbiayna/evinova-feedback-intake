@@ -38,4 +38,4 @@ The list in HARDENING.md, then changing a record's status and showing the propor
 
 ## Time spent
 
-TODO (Ferran): my own time, in hours. Setup and commit signing counted apart.
+About 4 to 5 hours of my own time, within the range the brief suggests.
