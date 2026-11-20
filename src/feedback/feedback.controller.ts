@@ -9,7 +9,7 @@ import {
 
 const errorBody = (code: string, message: string) => ({ error: { code, message } });
 
-/** HTTP routes for feedback. Translates the service's results and errors into responses. */
+// Maps service results and errors to HTTP responses.
 export function registerFeedbackRoutes(app: FastifyInstance, service: FeedbackService) {
   app.post("/feedback", async (request, reply) => {
     try {

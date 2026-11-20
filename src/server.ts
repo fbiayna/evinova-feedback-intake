@@ -23,7 +23,7 @@ function buildExtractor(): Extractor {
 try {
   process.loadEnvFile();
 } catch {
-  // No .env file: fine, the defaults use the mock.
+  // No .env file: use the defaults.
 }
 
 const extractor = buildExtractor();

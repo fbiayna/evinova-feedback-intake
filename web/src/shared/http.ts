@@ -1,4 +1,3 @@
-/** A failed API call: carries the error code and message from the API's `{ error: { code, message } }` body. */
 export class ApiError extends Error {
   constructor(
     message: string,

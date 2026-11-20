@@ -2,7 +2,6 @@ import { useCallback, useEffect, useState } from "react";
 import { listFeedback } from "./api";
 import type { FeedbackRecord } from "./types";
 
-/** Loads the feedback list and lets the caller reload it after a new submission. */
 export function useFeedbackList() {
   const [records, setRecords] = useState<FeedbackRecord[]>([]);
   const [loading, setLoading] = useState(true);

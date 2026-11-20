@@ -15,18 +15,14 @@ const BASE_PROMPT = [
   `Always answer by calling the ${TOOL_NAME} tool.`,
 ].join(" ");
 
-/** The operator's product context (trusted, set in the environment) goes before the rules. */
 function buildSystemPrompt(productContext?: string): string {
   return productContext ? `Product context: ${productContext}\n\n${BASE_PROMPT}` : BASE_PROMPT;
 }
 
-/**
- * Fail fast: one attempt waits at most 10 s and the SDK does not retry on its own.
- * The service makes at most 2 attempts, so a request takes 20 s at worst.
- */
+// 10 s per attempt and no SDK retries. With 2 attempts a request takes 20 s at worst.
 const TIMEOUT_MS = 10_000;
 
-/** The feedback goes inside <feedback> tags, so its own < and > are escaped: it cannot close the tag. */
+// Escape < and > so the feedback cannot close its own <feedback> tag.
 function escapeForPrompt(text: string): string {
   return text.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
 }
@@ -38,7 +34,7 @@ export function buildUserMessage(text: string, validationError?: string): string
   return `<feedback>\n${escapeForPrompt(text)}\n</feedback>${retryNote}`;
 }
 
-// The tool input schema comes from the same Zod schema the code validates against.
+// The tool schema comes from the Zod contract.
 const { $schema: _ignored, ...inputSchema } = z.toJSONSchema(ExtractionSchema);
 
 export class AnthropicExtractor implements Extractor {

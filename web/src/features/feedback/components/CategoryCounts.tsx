@@ -3,7 +3,6 @@ import { CATEGORY_LABEL } from "../presentation";
 import { CATEGORIES, countByCategory } from "../stats";
 import type { FeedbackRecord } from "../types";
 
-/** The aggregate view: how many records per category. */
 export function CategoryCounts({ records }: { records: FeedbackRecord[] }) {
   const counts = countByCategory(records);
 

@@ -1,9 +1,5 @@
-/**
- * Turns free-text feedback into structured content.
- *
- * The answer is untrusted: the caller must validate it. When the first answer
- * was rejected, `validationError` carries the reason so the model can correct it.
- */
+// The answer is untrusted: the caller validates it.
+// `validationError` is the reason a previous answer was rejected.
 export interface Extractor {
   extract(text: string, validationError?: string): Promise<unknown>;
 }
