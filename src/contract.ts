@@ -6,12 +6,11 @@ export const Sentiment = z.enum(["positive", "neutral", "negative"]);
 export const Severity = z.enum(["low", "medium", "high"]);
 export const Status = z.enum(["new", "triaged", "resolved"]);
 
-/** What a client may send. */
 export const SubmitInputSchema = z.object({
   text: z.string().trim().min(1).max(MAX_TEXT_LENGTH),
 });
 
-/** The only fields the model is allowed to produce. Anything else is dropped. */
+// Only the fields the model may produce.
 export const ExtractionSchema = z.object({
   category: Category,
   sentiment: Sentiment,
@@ -20,7 +19,7 @@ export const ExtractionSchema = z.object({
   suggestedAction: z.string().trim().min(1).max(300),
 });
 
-/** The stored record. The code owns id, submittedAt, status and text. */
+// The code owns id, submittedAt, status and text.
 export const FeedbackRecordSchema = ExtractionSchema.extend({
   id: z.string().regex(/^fb_[0-9a-f-]{36}$/),
   submittedAt: z.iso.datetime(),

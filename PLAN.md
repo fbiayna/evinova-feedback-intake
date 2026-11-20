@@ -69,6 +69,6 @@ Feature: Feedback intake
 
 ## Test-first
 
-The three scenarios were written as failing tests first (commit `ff4a943`), before
-any implementation. The work is staged plan, execute, harden: one branch and pull
-request per step, so the history shows the shape.
+The three scenarios were written as failing tests first (commit `ff4a943`),
+before the implementation. The work goes plan, execute, harden, with one pull
+request per step.

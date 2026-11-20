@@ -1,4 +1,4 @@
-// Public API of the feedback feature: the rest of the app imports from here only.
+// What the rest of the app can import from this feature.
 export { CategoryCounts } from "./components/CategoryCounts";
 export { RecordsTable } from "./components/RecordsTable";
 export { SubmitForm } from "./components/SubmitForm";

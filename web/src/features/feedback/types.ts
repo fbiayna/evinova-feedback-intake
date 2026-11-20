@@ -1,6 +1,6 @@
 import type { FeedbackRecord } from "@contract";
 
-// Derived from the API contract, so the web app can never drift from the backend.
+// Derived from the API contract.
 export type { FeedbackRecord };
 export type Category = FeedbackRecord["category"];
 export type Sentiment = FeedbackRecord["sentiment"];

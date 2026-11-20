@@ -1,6 +1,6 @@
 import type { Extractor } from "./extractor";
 
-/** Offline stand-in for the model: simple keyword rules, always the same answer for the same text. */
+// Offline stand-in for the model: simple keyword rules.
 export class MockExtractor implements Extractor {
   async extract(text: string): Promise<unknown> {
     const lower = text.toLowerCase();

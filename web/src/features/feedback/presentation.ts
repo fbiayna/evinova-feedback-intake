@@ -1,6 +1,6 @@
 import type { Category, Sentiment, Severity } from "./types";
 
-// Record<...> makes the compiler fail if the contract gains a value that is not handled here.
+// Record<...> stops compiling if the contract gets a value that is not handled here.
 export const CATEGORY_LABEL: Record<Category, string> = {
   bug: "Bugs",
   feature_request: "Feature requests",

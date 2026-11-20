@@ -10,7 +10,6 @@ function messageFor(error: unknown): string {
   return "Something went wrong. Please try again.";
 }
 
-/** Sends one feedback text. `submit` resolves to true when it was accepted. */
 export function useSubmitFeedback(onSubmitted: () => void) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string>();

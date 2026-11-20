@@ -1,6 +1,6 @@
 import type { FeedbackRecord } from "../contract";
 
-/** Where records are kept. In memory here; DynamoDB would implement the same interface. */
+// In memory here. DynamoDB would implement the same interface.
 export interface FeedbackRepository {
   save(record: FeedbackRecord): Promise<void>;
   /** Newest first. */

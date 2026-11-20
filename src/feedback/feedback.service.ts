@@ -10,7 +10,7 @@ import type { Extractor } from "../extraction/extractor";
 import { MAX_TEXT_LENGTH } from "../limits";
 import type { FeedbackRepository } from "./feedback.repository";
 
-/** The model is called once, then once more if its first answer breaks the contract. */
+// One call, plus one retry if the answer breaks the contract.
 const MAX_ATTEMPTS = 2;
 
 export class InvalidInputError extends Error {
@@ -21,7 +21,7 @@ export class InvalidModelOutputError extends Error {
   readonly code = "invalid_model_output";
 }
 
-/** The AI provider failed (network, timeout, rate limit). The original error is kept as `cause`. */
+// The AI provider failed (network, timeout, rate limit).
 export class ExtractionFailedError extends Error {
   readonly code = "extraction_failed";
 }
@@ -51,7 +51,6 @@ export function createFeedbackService(deps: FeedbackServiceDependencies) {
   }
 
   return {
-    /** Validates the input, extracts, builds the record (the code owns id, time and status) and stores it. */
     async submit(body: unknown): Promise<FeedbackRecord> {
       const input = SubmitInputSchema.safeParse(body);
       if (!input.success) {

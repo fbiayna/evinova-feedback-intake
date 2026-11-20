@@ -12,11 +12,8 @@ import { fileURLToPath } from "node:url";
 
 const SRC_DIR = fileURLToPath(new URL("../../src", import.meta.url));
 
-/**
- * The AWS target described in README.md. Checked with `cdk synth`, never deployed.
- *
- * Browser -> CloudFront -> S3 (web) and /feedback* -> HTTP API -> Lambda -> DynamoDB.
- */
+// The AWS target from the README. Checked with `cdk synth`, never deployed.
+// Browser -> CloudFront -> S3 (web) and /feedback* -> HTTP API -> Lambda -> DynamoDB.
 export class FeedbackStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
@@ -28,16 +25,15 @@ export class FeedbackStack extends Stack {
       removalPolicy: RemovalPolicy.RETAIN,
     });
 
-    // Created with a random placeholder value: the real key is set by hand in the console,
-    // so it never appears in code or in the template.
+    // Created with a random value. The real key is set by hand in the console, never in code.
     const anthropicKey = new Secret(this, "AnthropicApiKey");
 
-    // Placeholder code: the Lambda adapter that wraps the Fastify app is not built (see HARDENING.md).
+    // Placeholder code: the Lambda adapter for Fastify is not built (see HARDENING.md).
     const api = new LambdaFunction(this, "Api", {
       runtime: Runtime.NODEJS_22_X,
       handler: "lambda.handler",
       code: Code.fromAsset(SRC_DIR),
-      // Longer than the 20 s the model calls can take, shorter than the 30 s the HTTP API allows.
+      // Above the 20 s the model calls can take, below the 30 s of the HTTP API.
       timeout: Duration.seconds(29),
       memorySize: 512,
       environment: {
@@ -60,7 +56,7 @@ export class FeedbackStack extends Stack {
       enforceSSL: true,
     });
 
-    // One origin for the browser: the dashboard from S3 and /feedback* from the API, so no CORS is needed.
+    // One origin for the browser: the dashboard from S3 and /feedback* from the API, so no CORS.
     const distribution = new cloudfront.Distribution(this, "Cdn", {
       defaultRootObject: "index.html",
       defaultBehavior: {
